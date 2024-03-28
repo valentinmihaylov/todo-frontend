@@ -1,23 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import './App.scss';
 
 function App() {
+  const [todos, setTodos] = useState([]);
+
+  const fetchTodos = () => {
+    fetch('http://localhost:8080/todo')
+      .then(response => response.json())
+      .then(data => setTodos(data));
+  };
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  const deleteTodo = (id) => {
+    fetch(`http://localhost:8080/todo?id=${id}`, {
+      method: 'PUT',
+    })
+    .then(() => fetchTodos())
+    ;
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <ul>
+        {todos.map(todo => (
+          <li key={todo.id} className={todo.completedAt ? 'completed' : ''} onClick={() => deleteTodo(todo.id)}>
+            {todo.description}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
